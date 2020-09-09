@@ -4,10 +4,8 @@ from sqlalchemy import inspect
 def to_dict(obj):
     if obj is None:
         return None
-
     obj_dict = {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
     return obj_dict
-
 
 def to_dict_with_relationships(obj):
     if obj is None:
@@ -23,4 +21,3 @@ def to_dict_with_relationships(obj):
             obj_dict[relationship.key] = to_dict_with_relationships(related_value)
 
     return obj_dict
-

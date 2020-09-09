@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-
 from config.base import Base
-
 
 class Target(Base):
     __tablename__ = 'targets'

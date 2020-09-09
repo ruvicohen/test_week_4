@@ -41,6 +41,7 @@ query_create_tables = """create table if not exists Countries (
             city_id int not null,
             location_id int not null,
             target_type_id int,
+            industry_id int,
             foreign key (country_id) references Countries(country_id),
             foreign key (city_id) references Cities(city_id),
             foreign key (location_id) references Locations(location_id),
@@ -50,56 +51,60 @@ query_create_tables = """create table if not exists Countries (
 
 query_insert_from_mission_to_target = """
                 INSERT INTO Countries (country_name)
-                SELECT DISTINCT "Target Country"  -- Wrapped in double quotes
+                SELECT DISTINCT target_country
                 FROM mission
-                WHERE "Target Country" IS NOT NULL
+                WHERE target_country IS NOT NULL
                 ON CONFLICT (country_name) DO NOTHING;
                 
+                -- Insert into Cities
                 INSERT INTO Cities (city_name, country_id)
                 SELECT DISTINCT
-                    m."Target City",  -- Wrapped in double quotes
+                    m.target_city,
                     c.country_id
                 FROM mission m
-                JOIN Countries c ON m."Target Country" = c.country_name  -- Wrapped in double quotes
-                WHERE m."Target City" IS NOT NULL  -- Wrapped in double quotes
+                JOIN Countries c ON m.target_country = c.country_name
+                WHERE m.target_city IS NOT NULL
                 ON CONFLICT (city_name) DO NOTHING;
                 
+                -- Insert into Industries (since Industries is for target_industry, not target_type)
                 INSERT INTO Industries (industry_name)
-                SELECT DISTINCT "Target Industry"  -- Wrapped in double quotes
+                SELECT DISTINCT target_industry
                 FROM mission
-                WHERE "Target Industry" IS NOT NULL  -- Wrapped in double quotes
+                WHERE target_industry IS NOT NULL
                 ON CONFLICT (industry_name) DO NOTHING;
                 
+                -- Insert into Locations (using target_latitude and target_longitude)
                 INSERT INTO Locations (latitude, longitude)
                 SELECT DISTINCT
-                    m."Target Latitude"::NUMERIC(10, 6),
-                    m."Target Longitude"::NUMERIC(10, 6)
+                    m.target_latitude::NUMERIC(10, 6),
+                    m.target_longitude::NUMERIC(10, 6)
                 FROM mission m
-                WHERE m."Target Latitude" IS NOT NULL 
-                    AND m."Target Longitude" IS NOT NULL
+                WHERE m.target_latitude IS NOT NULL 
+                    AND m.target_longitude IS NOT NULL
                 ON CONFLICT (latitude, longitude) DO NOTHING;
                 
+                -- Insert into TargetTypes
                 INSERT INTO TargetTypes (target_type_name)
-                SELECT DISTINCT "Target Type"  -- Wrapped in double quotes
+                SELECT DISTINCT target_type
                 FROM mission
-                WHERE "Target Type" IS NOT NULL  -- Wrapped in double quotes
+                WHERE target_type IS NOT NULL
                 ON CONFLICT (target_type_name) DO NOTHING;
-                
-                INSERT INTO Targets (priority, country_id, city_id, location_id, target_type_id, industry_id)
+
+				INSERT INTO Targets (priority, country_id, city_id, location_id, target_type_id, industry_id)
                 SELECT DISTINCT
-                    NULLIF(m."Target Priority", ''),  -- Wrapped in double quotes
+                    NULLIF(m.target_priority, ''),  -- Convert to int and handle NULL
                     c.country_id,
                     ci.city_id,
                     l.location_id,
                     tt.target_type_id,
                     i.industry_id
                 FROM mission m
-                JOIN Countries c ON m."Target Country" = c.country_name  -- Wrapped in double quotes
-                JOIN Cities ci ON m."Target City" = ci.city_name  -- Wrapped in double quotes
-                JOIN Locations l ON m."Target Latitude" = l.latitude AND m."Target Longitude" = l.longitude
-                LEFT JOIN TargetTypes tt ON m."Target Type" = tt.target_type_name  -- Wrapped in double quotes
-                JOIN Industries i ON i.industry_name = m."Target Industry"  -- Wrapped in double quotes
-                WHERE NULLIF(m."Target Priority", '') IS NOT NULL  -- Wrapped in double quotes
+                JOIN Countries c ON m.target_country = c.country_name
+                JOIN Cities ci ON m.target_city = ci.city_name
+                JOIN Locations l ON m.target_latitude = l.latitude AND m.target_longitude = l.longitude
+                LEFT JOIN TargetTypes tt ON m.target_type = tt.target_type_name
+                JOIN Industries i ON i.industry_name = m.target_industry
+                WHERE NULLIF(m.target_priority, '') IS NOT NULL  -- Ensure not NULL
                 ON CONFLICT DO NOTHING;
                                 """
 

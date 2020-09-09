@@ -1,7 +1,6 @@
 from config.base import session_factory, engine
 import pandas as pd
 
-
 def load_missions_to_db_from_csv():
     with session_factory() as session:
         csv_file = 'assets/operations.csv'
@@ -15,5 +14,8 @@ def load_missions_to_db_from_csv():
             'Incendiary Devices Type': 'string',  # Example: column 44
         }
         df = pd.read_csv(csv_file, dtype=dtype_spec, low_memory=False)
-        df.to_sql('mission', engine, if_exists='append', index=False)
 
+        df.columns = df.columns.str.strip().str.replace(r'[()]', '', regex=True).str.lower().str.replace(' ', '_')
+        existing_ids = pd.read_sql_query('SELECT mission_id FROM mission', engine)
+        df = df[~df['mission_id'].isin(existing_ids['mission_id'])]
+        df.to_sql('mission', engine, if_exists='append', index=False)

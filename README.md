@@ -43,4 +43,4 @@ pytest
 ## API Endpoints
 
 - GET `/api/targets Get targets 
-- GET `/api/target/<team_id>`: Get details of a specific target
+- GET `/api/target/<target_id>`: Get details of a specific target

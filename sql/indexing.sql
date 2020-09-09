@@ -24,7 +24,3 @@ order by count(bomb_damage_assessment) desc limit 1
 CREATE INDEX idx_bomb_damage_assessment ON mission (bomb_damage_assessment)
 --hash index
 CREATE INDEX idx_bomb_damage_assessment ON mission using hash (bomb_damage_assessment)
-
-
-
-

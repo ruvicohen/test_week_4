@@ -1,8 +1,6 @@
 from config.base import session_factory
 from model import Country, City, Industry, Location, TargetType, Target, Mission  # Assuming these are your models
 
-
-
 def insert_from_mission_to_target_with_orm():
     with session_factory() as session:
         try:
@@ -78,27 +76,3 @@ def insert_from_mission_to_target_with_orm():
         except Exception as e:
             #session.rollback()
             print(f"Error occurred: {e}")
-
-
-# def insert_user(user: User) -> Result[User, str]:
-#     with session_factory() as session:
-#         try:
-#             session.add(user)
-#             session.commit()
-#             session.refresh(user)
-#             return Success(user)
-#         except SQLAlchemyError as e:
-#             return Failure(str(e))
-#
-# def insert_countries():
-#     with session_factory() as session:
-#         try:
-#             distinct_countries = session.query(Mission.target_country).distinct().filter(Mission.target_country.isnot(None))
-#             for country in distinct_countries:
-#                 country_obj = Country(country_name=country.target_country)
-#                 session.add(country_obj)
-#             session.commit()
-#             session.refresh()
-#             return Success(distinct_countries)
-#         except SQLAlchemyError as e:
-#             return Failure(str(e))
