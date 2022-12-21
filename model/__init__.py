@@ -4,3 +4,4 @@ from .industry import Industry
 from .location import Location
 from .type import TargetType
 from .target import Target
+from .Mission import Mission

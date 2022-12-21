@@ -1,8 +1,6 @@
 from typing import List
-
 from returns.maybe import Maybe
 from sqlalchemy.orm import joinedload
-
 from config.base import session_factory
 from model.target import Target
 

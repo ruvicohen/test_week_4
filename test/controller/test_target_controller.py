@@ -3,7 +3,7 @@ from flask import Flask
 
 from controller.target_controller import target_blueprint
 from repository.database import create_tables, drop_tables
-from repository.tables_repository import insert_from_mission_to_target
+from repository.tables_native_sql_repository import insert_from_mission_to_target
 from service.seed import seed
 
 

@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, Numeric, UniqueConstraint
-
 from config.base import Base
 
 
