@@ -1,7 +1,5 @@
 from flask import Flask
-
 from controller.target_controller import target_blueprint
-from repository.database import drop_tables
 from service.seed import seed
 
 app = Flask(__name__)

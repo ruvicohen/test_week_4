@@ -48,14 +48,13 @@ query_create_tables = """create table if not exists Countries (
         );
         """
 
-query_insert_from_mission_to_target = """-- Insert into Countries
+query_insert_from_mission_to_target = """
                 INSERT INTO Countries (country_name)
                 SELECT DISTINCT target_country
                 FROM mission
                 WHERE target_country IS NOT NULL
                 ON CONFLICT (country_name) DO NOTHING;
                 
-                -- Insert into Cities
                 INSERT INTO Cities (city_name, country_id)
                 SELECT DISTINCT
                     m.target_city,
@@ -65,14 +64,12 @@ query_insert_from_mission_to_target = """-- Insert into Countries
                 WHERE m.target_city IS NOT NULL
                 ON CONFLICT (city_name) DO NOTHING;
                 
-                -- Insert into Industries (since Industries is for target_industry, not target_type)
                 INSERT INTO Industries (industry_name)
                 SELECT DISTINCT target_industry
                 FROM mission
                 WHERE target_industry IS NOT NULL
                 ON CONFLICT (industry_name) DO NOTHING;
                 
-                -- Insert into Locations (using target_latitude and target_longitude)
                 INSERT INTO Locations (latitude, longitude)
                 SELECT DISTINCT
                     m.target_latitude::NUMERIC(10, 6),
@@ -82,38 +79,37 @@ query_insert_from_mission_to_target = """-- Insert into Countries
                     AND m.target_longitude IS NOT NULL
                 ON CONFLICT (latitude, longitude) DO NOTHING;
                 
-                -- Insert into TargetTypes
                 INSERT INTO TargetTypes (target_type_name)
                 SELECT DISTINCT target_type
                 FROM mission
                 WHERE target_type IS NOT NULL
                 ON CONFLICT (target_type_name) DO NOTHING;
                 
-                -- Insert into Targets (includes priority, city_id, target_type_id, location_id)
-                INSERT INTO Targets (priority, country_id, city_id, location_id, target_type_id)
+                INSERT INTO Targets (priority, country_id, city_id, location_id, target_type_id, industry_id)
                 SELECT DISTINCT
-                    NULLIF(m.target_priority, ''),  -- Convert to int and handle NULL
+                    NULLIF(m.target_priority, ''),  
                     c.country_id,
                     ci.city_id,
                     l.location_id,
-                    tt.target_type_id
+                    tt.target_type_id,
+                    i.industry_id
                 FROM mission m
                 JOIN Countries c ON m.target_country = c.country_name
                 JOIN Cities ci ON m.target_city = ci.city_name
                 JOIN Locations l ON m.target_latitude = l.latitude AND m.target_longitude = l.longitude
                 LEFT JOIN TargetTypes tt ON m.target_type = tt.target_type_name
-                WHERE NULLIF(m.target_priority, '') IS NOT NULL  -- Ensure not NULL
+                JOIN Industries i ON i.industry_name = m.target_industry
+                WHERE NULLIF(m.target_priority, '') IS NOT NULL  
                 ON CONFLICT DO NOTHING;
-                
-                select * from mission
-                """
+                                """
 
 def create_tables_with_execute():
     with session_factory() as session:
-        query_result = session.execute(text(query_create_tables))
-        return query_result.fetchone()
+        session.execute(text(query_create_tables))
+        session.commit()
+
 
 def insert_from_mission_to_target():
     with session_factory() as session:
-        query_result = session.execute(text(query_insert_from_mission_to_target))
-        return query_result.fetchone()
+        session.execute(text(query_insert_from_mission_to_target))
+        session.commit()

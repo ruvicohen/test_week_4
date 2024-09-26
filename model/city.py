@@ -12,4 +12,4 @@ class City(Base):
     country_id = Column(Integer, ForeignKey('countries.country_id'), nullable=False)
 
     # Relationship to country
-    country = relationship("Country", back_populates="cities", lazy="joined")
+    country = relationship("Country", back_populates="cities")

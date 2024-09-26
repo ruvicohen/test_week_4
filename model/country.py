@@ -12,4 +12,4 @@ class Country(Base):
     country_name = Column(String(100), unique=True, nullable=False)
 
     # Relationship to cities
-    cities = relationship("City", back_populates="country", lazy="joined")
+    cities = relationship("City", back_populates="country")

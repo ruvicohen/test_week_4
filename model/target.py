@@ -13,9 +13,11 @@ class Target(Base):
     city_id = Column(Integer, ForeignKey('cities.city_id'), nullable=False)
     location_id = Column(Integer, ForeignKey('locations.location_id'), nullable=False)
     target_type_id = Column(Integer, ForeignKey('targettypes.target_type_id'))
+    industry_id = Column(Integer, ForeignKey('industries.industry_id'))
 
     # Relationships
     country = relationship("Country")
     city = relationship("City")
     location = relationship("Location")
     target_type = relationship("TargetType")
+    industry = relationship("Industry")
