@@ -1,13 +1,16 @@
-from sqlalchemy import Column, Integer, Float, UniqueConstraint
-from sqlalchemy.orm import relationship
-from base import Base
+from sqlalchemy import Column, Integer, Numeric, UniqueConstraint
+
+from config.base import Base
+
 
 class Location(Base):
     __tablename__ = 'locations'
-    location_id = Column(Integer, primary_key=True, autoincrement=True)
-    latitude = Column(Float(precision=8), nullable=False)
-    longitude = Column(Float(precision=8), nullable=False)
 
-    targets = relationship('Target', back_populates='location')
+    location_id = Column(Integer, primary_key=True)
+    latitude = Column(Numeric(10, 6))
+    longitude = Column(Numeric(10, 6))
 
-    __table_args__ = (UniqueConstraint('latitude', 'longitude', name='unique_location'),)
+    # Unique constraint for latitude and longitude
+    __table_args__ = (
+        UniqueConstraint('latitude', 'longitude', name='unique_location'),
+    )
